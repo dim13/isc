@@ -24,6 +24,11 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 `
 
+const Short = `// Copyright (c) {{.Year}} {{.Name}}. All rights reserved.
+// Use of this source code is governed by ISC-style license
+// that can be found in the LICENSE file.
+`
+
 func main() {
 	usr, err := user.Current()
 	if err != nil {
@@ -38,6 +43,7 @@ func main() {
 	name := flag.String("name", usr.Name, "Full name")
 	mail := flag.String("mail", usr.Username+"@"+host, "Mail address")
 	year := flag.Int("year", time.Now().Year(), "Copyright year")
+	short := flag.Bool("short", false, "Short version")
 	flag.Parse()
 
 	l := struct {
@@ -49,5 +55,12 @@ func main() {
 		Year: *year,
 	}
 
-	template.Must(template.New("ISC").Parse(ISC)).Execute(os.Stdout, l)
+	isc := template.Must(template.New("ISC").Parse(ISC))
+	shrt := template.Must(template.New("Short").Parse(Short))
+
+	if *short {
+		shrt.Execute(os.Stdout, l)
+	} else {
+		isc.Execute(os.Stdout, l)
+	}
 }
