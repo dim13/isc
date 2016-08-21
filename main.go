@@ -53,8 +53,11 @@ func main() {
 		tmpl = template.Must(template.New("ISC").Parse(ISC))
 	}
 
-	tmpl.Execute(os.Stdout, struct {
+	err = tmpl.Execute(os.Stdout, struct {
 		Name, Mail string
 		Year       int
 	}{*name, *mail, *year})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
