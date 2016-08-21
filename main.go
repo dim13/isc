@@ -46,21 +46,15 @@ func main() {
 	short := flag.Bool("short", false, "Short version")
 	flag.Parse()
 
-	l := struct {
+	var tmpl *template.Template
+	if *short {
+		tmpl = template.Must(template.New("Short").Parse(Short))
+	} else {
+		tmpl = template.Must(template.New("ISC").Parse(ISC))
+	}
+
+	tmpl.Execute(os.Stdout, struct {
 		Name, Mail string
 		Year       int
-	}{
-		Name: *name,
-		Mail: *mail,
-		Year: *year,
-	}
-
-	isc := template.Must(template.New("ISC").Parse(ISC))
-	shrt := template.Must(template.New("Short").Parse(Short))
-
-	if *short {
-		shrt.Execute(os.Stdout, l)
-	} else {
-		isc.Execute(os.Stdout, l)
-	}
+	}{*name, *mail, *year})
 }
