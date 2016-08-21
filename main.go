@@ -1,3 +1,4 @@
+// ISC prints personalized ISC style license
 package main
 
 import (
@@ -9,6 +10,7 @@ import (
 	"time"
 )
 
+// ISC style license
 const ISC = `Copyright (c) {{.Year}} {{.Name}}{{with .Mail}} <{{.}}>{{end}}
 
 Permission to use, copy, modify, and distribute this software for any
@@ -24,6 +26,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 `
 
+// Short banner
 const Short = `// Copyright (c) {{.Year}} {{.Name}}. All rights reserved.
 // Use of this source code is governed by ISC-style license
 // that can be found in the LICENSE file.
