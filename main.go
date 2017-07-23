@@ -30,8 +30,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // Copyright (c) {{.Year}} {{.Name}}. All rights reserved.
 // Use of this source code is governed by ISC-style license
 // that can be found in the LICENSE file.
-{{end}}
-`
+{{end}}`
 
 type params struct {
 	Name string
@@ -56,13 +55,13 @@ func main() {
 	banner := flag.Bool("banner", false, "Print banner")
 	flag.Parse()
 
-	tmpl := template.Must(template.New("lic").Parse(License))
+	tmpl := template.Must(template.New("").Parse(License))
 	kind := "license"
 	if *banner {
 		kind = "banner"
 	}
 
-	p := params{*name, *mail, *year}
+	p := params{Name: *name, Mail: *mail, Year: *year}
 	if err = tmpl.ExecuteTemplate(os.Stdout, kind, p); err != nil {
 		log.Fatal(err)
 	}
