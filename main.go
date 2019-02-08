@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"io"
 	"log"
 	"os"
 	"os/user"
@@ -44,17 +45,31 @@ type page struct {
 	Short bool
 }
 
-func main() {
+func execute(w io.Writer, p page) error {
+	tmpl, err := template.New("").Parse(license)
+	if err != nil {
+		return err
+	}
+	return tmpl.ExecuteTemplate(w, "license", p)
+}
+
+func owner() (*user.User, string, error) {
 	usr, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		return nil, "", err
 	}
-
 	host, err := os.Hostname()
+	if err != nil {
+		return nil, "", err
+	}
+	return usr, host, nil
+}
+
+func main() {
+	usr, host, err := owner()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	var (
 		name  = flag.String("name", usr.Name, "full name")
 		mail  = flag.String("mail", usr.Username+"@"+host, "mail address")
@@ -62,15 +77,9 @@ func main() {
 		short = flag.Bool("banner", false, "print banner")
 	)
 	flag.Parse()
-
 	args := page{Name: *name, Mail: *mail, Year: *year, Short: *short}
-
-	tmpl, err := template.New("").Parse(license)
-	if err != nil {
+	if err = execute(os.Stdout, args); err != nil {
 		log.Fatal(err)
 	}
 
-	if err = tmpl.ExecuteTemplate(os.Stdout, "license", args); err != nil {
-		log.Fatal(err)
-	}
 }
