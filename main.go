@@ -10,8 +10,12 @@ import (
 	"time"
 )
 
-// License is ISC style license
-const License = `{{define "license" -}}
+// ISC style license
+const license = `{{define "license" -}}
+{{if .Short}}{{template "banner" .}}{{else}}{{template "isc" .}}{{end}}
+{{end}}
+
+{{define "isc" -}}
 Copyright (c) {{.Year}} {{.Name}}{{with .Mail}} <{{.}}>{{end}}
 
 Permission to use, copy, modify, and distribute this software for any
@@ -25,17 +29,19 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-{{end}}
+{{- end}}
+
 {{define "banner" -}}
 // Copyright (c) {{.Year}} {{.Name}}. All rights reserved.
 // Use of this source code is governed by ISC-style license
 // that can be found in the LICENSE file.
-{{end}}`
+{{- end}}`
 
-type params struct {
-	Name string
-	Mail string
-	Year int
+type page struct {
+	Name  string
+	Mail  string
+	Year  int
+	Short bool
 }
 
 func main() {
@@ -49,20 +55,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	name := flag.String("name", usr.Name, "Full name")
-	mail := flag.String("mail", usr.Username+"@"+host, "Mail address")
-	year := flag.Int("year", time.Now().Year(), "Copyright year")
-	banner := flag.Bool("banner", false, "Print banner")
+	var (
+		name  = flag.String("name", usr.Name, "full name")
+		mail  = flag.String("mail", usr.Username+"@"+host, "mail address")
+		year  = flag.Int("year", time.Now().Year(), "copyright year")
+		short = flag.Bool("banner", false, "print banner")
+	)
 	flag.Parse()
 
-	tmpl := template.Must(template.New("").Parse(License))
-	kind := "license"
-	if *banner {
-		kind = "banner"
+	args := page{Name: *name, Mail: *mail, Year: *year, Short: *short}
+
+	tmpl, err := template.New("").Parse(license)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	p := params{Name: *name, Mail: *mail, Year: *year}
-	if err = tmpl.ExecuteTemplate(os.Stdout, kind, p); err != nil {
+	if err = tmpl.ExecuteTemplate(os.Stdout, "license", args); err != nil {
 		log.Fatal(err)
 	}
 }
