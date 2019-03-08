@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io"
 	"log"
+	"net/mail"
 	"os"
 	"os/user"
 	"text/template"
@@ -53,26 +54,29 @@ func execute(w io.Writer, p page) error {
 	return tmpl.ExecuteTemplate(w, "license", p)
 }
 
-func owner() (*user.User, string, error) {
+func owner() (*mail.Address, error) {
 	usr, err := user.Current()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 	host, err := os.Hostname()
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
-	return usr, host, nil
+	return &mail.Address{
+		Name:    usr.Name,
+		Address: usr.Username + "@" + host,
+	}, nil
 }
 
 func main() {
-	usr, host, err := owner()
+	usr, err := owner()
 	if err != nil {
 		log.Fatal(err)
 	}
 	var (
 		name  = flag.String("name", usr.Name, "full name")
-		mail  = flag.String("mail", usr.Username+"@"+host, "mail address")
+		mail  = flag.String("mail", usr.Address, "mail address")
 		year  = flag.Int("year", time.Now().Year(), "copyright year")
 		short = flag.Bool("banner", false, "print banner")
 	)
